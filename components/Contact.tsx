@@ -29,31 +29,20 @@ export default function Contact() {
     setError("");
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+      const name = form.name.trim();
+      const email = form.email.trim();
+      const message = form.message.trim();
 
-      const raw = await response.text();
-      let data: { error?: string } = {};
-
-      try {
-        data = raw ? (JSON.parse(raw) as { error?: string }) : {};
-      } catch {
-        data = {
-          error: response.ok
-            ? undefined
-            : "The contact API returned an unexpected response.",
-        };
+      if (!name || !email || !message) {
+        throw new Error("All fields are required.");
       }
 
-      if (!response.ok) {
-        throw new Error(data.error || "Unable to send your message right now.");
-      }
+      const subject = encodeURIComponent(`Portfolio inquiry from ${name}`);
+      const body = encodeURIComponent(
+        `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+      );
 
+      window.location.href = `mailto:rahulmondaldob2002@gmail.com?subject=${subject}&body=${body}`;
       setForm({ name: "", email: "", message: "" });
       setSubmitted(true);
     } catch (err) {
@@ -160,7 +149,7 @@ export default function Contact() {
                     Message received!
                   </h3>
                   <p className="text-[var(--muted)] text-sm">
-                    I&apos;ll get back to you within 24 hours.
+                    Your email app should open with the message ready to send.
                   </p>
                 </div>
               </div>
@@ -169,6 +158,10 @@ export default function Contact() {
                 onSubmit={handleSubmit}
                 className="space-y-4 p-6 md:p-8 rounded-xl border border-[var(--border)] bg-[var(--background)]"
               >
+                <p className="text-sm text-[var(--muted)]">
+                  This static site opens your email app with the message filled
+                  in for you.
+                </p>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">

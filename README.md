@@ -18,16 +18,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project uses local CSS font stacks so builds work reliably in offline or restricted environments.
 
 ## Contact Form Setup
 
-The contact form submits to `app/api/contact/route.ts` and sends email through Resend.
-
-1. Copy `.env.example` to `.env.local`.
-2. Add your `RESEND_API_KEY`.
-3. Keep `CONTACT_TO_EMAIL=rahulmondaldob2002@gmail.com`.
-4. Set `CONTACT_FROM_EMAIL` to a sender address that is allowed by your Resend account or verified domain.
+The site is configured with static export (`output: "export"`), so the contact
+form does not use a Next.js API route. Submitting the form opens the visitor's
+default email app with the subject and message pre-filled for
+`rahulmondaldob2002@gmail.com`.
 
 ## Learn More
 

@@ -32,37 +32,36 @@ export default function Contact() {
       const name = form.name.trim();
       const email = form.email.trim();
       const message = form.message.trim();
+      const isLocalDevelopment =
+        typeof window !== "undefined" &&
+        (window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1");
 
       if (!name || !email || !message) {
         throw new Error("All fields are required.");
       }
 
-      // Try API first (works in development)
-      try {
-        const response = await fetch('/api/contact', {
-          method: 'POST',
+      if (isLocalDevelopment) {
+        const response = await fetch("/api/contact", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ name, email, message }),
         });
 
-        // If response is HTML (like a 404 page), this will throw
-        const data = await response.json();
+        const raw = await response.text();
+        const data = raw ? (JSON.parse(raw) as { error?: string }) : {};
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to send message');
+          throw new Error(data.error || "Failed to send message");
         }
 
         setForm({ name: "", email: "", message: "" });
         setSubmitted(true);
         return;
-      } catch (apiError) {
-        // API failed (likely static deployment), fall back to mailto
-        console.log('API unavailable, falling back to mailto');
       }
 
-      // Fallback: Open email client (works in static deployment)
       const subject = encodeURIComponent(`Portfolio inquiry from ${name}`);
       const body = encodeURIComponent(
         `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
@@ -175,7 +174,7 @@ export default function Contact() {
                     Message received!
                   </h3>
                   <p className="text-[var(--muted)] text-sm">
-                    Thank you for reaching out. I'll get back to you soon.
+                    Your email app should open with the message ready to send.
                   </p>
                 </div>
               </div>
@@ -185,7 +184,8 @@ export default function Contact() {
                 className="space-y-4 p-6 md:p-8 rounded-xl border border-[var(--border)] bg-[var(--background)]"
               >
                 <p className="text-sm text-[var(--muted)]">
-                  Send me a message and I'll get back to you soon.
+                  On the live site, this opens your email app with the message
+                  pre-filled for quick sending.
                 </p>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>

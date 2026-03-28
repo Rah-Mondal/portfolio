@@ -37,20 +37,38 @@ export default function Contact() {
         throw new Error("All fields are required.");
       }
 
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, message }),
-      });
+      // Try API first (works in development)
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, message }),
+        });
 
-      const data = await response.json();
+        // If response is HTML (like a 404 page), this will throw
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message');
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to send message');
+        }
+
+        setForm({ name: "", email: "", message: "" });
+        setSubmitted(true);
+        return;
+      } catch (apiError) {
+        // API failed (likely static deployment), fall back to mailto
+        console.log('API unavailable, falling back to mailto');
       }
 
+      // Fallback: Open email client (works in static deployment)
+      const subject = encodeURIComponent(`Portfolio inquiry from ${name}`);
+      const body = encodeURIComponent(
+        `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+      );
+
+      window.location.href = `mailto:rahulmondaldob2002@gmail.com?subject=${subject}&body=${body}`;
       setForm({ name: "", email: "", message: "" });
       setSubmitted(true);
     } catch (err) {
@@ -154,10 +172,10 @@ export default function Contact() {
                 <CheckCircle size={40} className="text-emerald-400" />
                 <div>
                   <h3 className="font-semibold text-lg mb-1">
-                    Message sent successfully!
+                    Message received!
                   </h3>
                   <p className="text-[var(--muted)] text-sm">
-                    Thank you for reaching out. I'll get back to you within 24 hours.
+                    Thank you for reaching out. I'll get back to you soon.
                   </p>
                 </div>
               </div>
@@ -167,7 +185,7 @@ export default function Contact() {
                 className="space-y-4 p-6 md:p-8 rounded-xl border border-[var(--border)] bg-[var(--background)]"
               >
                 <p className="text-sm text-[var(--muted)]">
-                  Send me a message and I'll get back to you within 24 hours.
+                  Send me a message and I'll get back to you soon.
                 </p>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
